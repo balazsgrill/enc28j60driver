@@ -10,7 +10,7 @@
  * DS39662D
  * */
 
-#include "enchw.h"
+#include <enchw.h>
 #include "enc28j60.h"
 
 #if defined(ENC28J60_USE_PBUF) && !defined(DEBUG)
@@ -18,7 +18,7 @@
 #endif
 
 #ifndef DEBUG
-#error "Please provide a DEBUG(...) macro that behaves like a printf."
+#define DEBUG(...)
 #endif
 
 /** This access/cast happens too often to be written out explicitly */
