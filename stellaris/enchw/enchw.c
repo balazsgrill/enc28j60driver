@@ -8,8 +8,10 @@
 #include <inc/hw_ssi.h>
 #include <inc/hw_types.h>
 #include <driverlib/ssi.h>
+#include <driverlib/uart.h>
 #include <driverlib/gpio.h>
 #include <driverlib/sysctl.h>
+#include "encdebug.h"
 
 //#include "enchw-config.h"
 
@@ -74,23 +76,64 @@ void enchw_setup(enchw_device_t __attribute__((unused)) *dev)
     //
     SSIEnable(SSI1_BASE);
 
+    //
+        // Enable the peripherals used by this example.
+        //
+        SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
+        SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+
+        //
+        // Set GPIO A0 and A1 as UART pins.
+        //
+        GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
+
+        //
+        // Configure the UART for 115,200, 8-N-1 operation.
+        //
+        UARTConfigSetExpClk(UART0_BASE, SysCtlClockGet(), 115200,
+                                (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
+                                 UART_CONFIG_PAR_NONE));
+
 }
 
 void enchw_select(enchw_device_t __attribute__((unused)) *dev)
 {
 	/* CS is handled by SSI device */
+	//pause();
 }
 
 void enchw_unselect(enchw_device_t __attribute__((unused)) *dev)
 {
 	/* CS is handled by SSI device */
+	//pause();
+}
+
+static void debugChar(uint8_t data){
+	static const char digits [] = "0123456789ABCDEF";
+
+	uint8_t index = (data&0xF0u)>>4u;
+	UARTCharPut(UART0_BASE, digits[index]);
+	index = data&0xFu;
+	UARTCharPut(UART0_BASE, digits[index]);
+}
+
+static void debugData(uint8_t sent, uint8_t recvd){
+	debugChar(sent);
+	UARTCharPut(UART0_BASE, ':');
+	debugChar(recvd);
+	UARTCharPut(UART0_BASE, ' ');
 }
 
 uint8_t enchw_exchangebyte(enchw_device_t __attribute__((unused)) *dev, uint8_t byte)
 {
+	unsigned long ssiData = byte;
 	uint8_t result = 0xFFu;
 
-	SSIDataPut(SSI0_BASE, result);
-	SSIDataGet(SSI1_BASE, &result);
+	SSIDataPut(SSI1_BASE, ssiData);
+	SSIDataGet(SSI1_BASE, &ssiData);
+	result = (uint8_t)(ssiData & 0xFFu);
+	enc_debug(0, result);
+	debugData(byte, result);
+
 	return result;
 }

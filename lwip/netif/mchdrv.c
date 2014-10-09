@@ -44,13 +44,13 @@ err_t mchdrv_init(struct netif *netif) {
 	if (result != 0)
 	{
 		LWIP_DEBUGF(NETIF_DEBUG, ("Error %d in enc_setup, interface setup aborted.\n", result));
-		return ERR_IF;
+		return 2;//ERR_IF;
 	}
 	result = enc_bist_manual(encdevice);
 	if (result != 0)
 	{
 		LWIP_DEBUGF(NETIF_DEBUG, ("Error %d in enc_bist_manual, interface setup aborted.\n", result));
-		return ERR_IF;
+		return 4;//ERR_IF;
 	}
 	enc_ethernet_setup(encdevice, 4*1024, netif->hwaddr);
 
