@@ -41,6 +41,7 @@ int enc_setup_basic(enc_device_t *dev);
 uint8_t enc_bist(enc_device_t *dev);
 uint8_t enc_bist_manual(enc_device_t *dev);
 uint8_t enc_RCR(enc_device_t *dev, enc_register_t reg);
+uint8_t enc_RCR_MAC(enc_device_t *dev, enc_register_t reg);
 uint16_t enc_RCR16(enc_device_t *dev, enc_register_t reg);
 void enc_WCR(enc_device_t *dev, uint8_t reg, uint8_t data);
 void enc_WCR16(enc_device_t *dev, uint8_t reg, uint16_t data);

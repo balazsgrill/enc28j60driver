@@ -146,6 +146,20 @@ static uint8_t command(enc_device_t *dev, uint8_t first, uint8_t second)
 	return result;
 }
 
+static uint8_t command_with_dummyByte(enc_device_t *dev, uint8_t first, uint8_t second)
+{
+	uint8_t result;
+	enchw_select(HWDEV);
+	enchw_exchangebyte(HWDEV, first);
+
+	/* Dummy byte*/
+	enchw_exchangebyte(HWDEV, second);
+
+	result = enchw_exchangebyte(HWDEV, second);
+	enchw_unselect(HWDEV);
+	return result;
+}
+
 /* this would recurse infinitely if ENC_ECON1 was not ENC_BANKALL */
 static void select_page(enc_device_t *dev, uint8_t page)
 {
@@ -170,6 +184,12 @@ uint8_t enc_RCR(enc_device_t *dev, enc_register_t reg) {
 	ensure_register_accessible(dev, reg);
 	return command(dev, reg & ENC_REGISTERMASK, 0);
 }
+
+uint8_t enc_RCR_MAC(enc_device_t *dev, enc_register_t reg) {
+	ensure_register_accessible(dev, reg);
+	return command_with_dummyByte(dev, reg & ENC_REGISTERMASK, 0);
+}
+
 void enc_WCR(enc_device_t *dev, uint8_t reg, uint8_t data) {
 	ensure_register_accessible(dev, reg);
 	command(dev, 0x40 | (reg & ENC_REGISTERMASK), data);
